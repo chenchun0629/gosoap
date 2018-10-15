@@ -62,16 +62,22 @@ func recursiveEncode(hm interface{}) {
 	switch v.Kind() {
 	case reflect.Map:
 		for _, key := range v.MapKeys() {
-			t := xml.StartElement{
-				Name: xml.Name{
-					Space: "",
-					Local: key.String(),
-				},
+			if se, ok := v.MapIndex(key).Interface().(ParamWithAttr); ok {
+				t := se.Header
+				tokens = append(tokens, t)
+				recursiveEncode(se.Params)
+				tokens = append(tokens, xml.EndElement{Name: t.Name})
+			} else {
+				t := xml.StartElement{
+					Name: xml.Name{
+						Space: "",
+						Local: key.String(),
+					},
+				}
+				tokens = append(tokens, t)
+				recursiveEncode(v.MapIndex(key).Interface())
+				tokens = append(tokens, xml.EndElement{Name: t.Name})
 			}
-
-			tokens = append(tokens, t)
-			recursiveEncode(v.MapIndex(key).Interface())
-			tokens = append(tokens, xml.EndElement{Name: t.Name})
 		}
 	case reflect.Slice:
 		for i := 0; i < v.Len(); i++ {
