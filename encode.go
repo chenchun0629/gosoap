@@ -65,7 +65,11 @@ func recursiveEncode(hm interface{}) {
 			if se, ok := v.MapIndex(key).Interface().(ParamWithAttr); ok {
 				t := se.Header
 				tokens = append(tokens, t)
-				recursiveEncode(se.Params)
+				if len(se.Params) == 0 {
+					recursiveEncode(se.Value)
+				} else {
+					recursiveEncode(se.Params)
+				}
 				tokens = append(tokens, xml.EndElement{Name: t.Name})
 			} else {
 				t := xml.StartElement{

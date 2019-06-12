@@ -19,6 +19,7 @@ type Params map[string]interface{}
 type ParamWithAttr struct {
 	Params Params
 	Header xml.StartElement
+	Value  interface{}
 }
 
 // SoapClient return new *Client to handle the requests with the WSDL
